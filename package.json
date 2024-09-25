@@ -8,6 +8,10 @@
     "build": "yarn build:tsc",
     "build:tsc": "yarn tsc"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ohshinyeop/tanstack-multiple-react-table-to-xlsx"
+  },
   "exports": {
     ".": {
       "import": "./dist/index.js",
