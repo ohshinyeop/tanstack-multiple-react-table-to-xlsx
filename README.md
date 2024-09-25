@@ -20,23 +20,48 @@ yarn add tanstack-multiple-react-table-to-xlsx
 
 ```javascript
 import { useReactTable } from "tanstack/react-table";
-import { drawExcelSheet } from "tanstack-multiple-react-table-to-xlsx";
+import exportExcelJs from "tanstack-multiple-react-table-to-xlsx";
 ```
 
 2. Use the `useReactTable` hook to get the table data:
 
 ```javascript
-const tableData = useReactTable(options);
-const tableData2 = useReactTable(options);
+const firstTable = useReactTable({
+  data: firstData,
+  columns: firstColumns,
+  getCoreRowModel: getCoreRowModel(),
+});
+const secondTable = useReactTable({
+  data: secondData,
+  columns: secondColumns,
+  getCoreRowModel: getCoreRowModel(),
+});
+
+const tables = [firstTable, secondTable];
 ```
 
-3. Pass the `tableData` array to the `drawExcelSheet` function:
+3. Pass the `tables` array to the `exportExcelJs` function:
 
 ```javascript
-drawExcelSheet([tableData, TableData2]);
+<Button
+  className="w-fit flex gap-2 items-center h-full px-3 py-1"
+  size={"sm"}
+  onClick={() => {
+    exportExcelJs(
+      tables,
+      `Part & Equipment Summary_${moment().format("YYYYMMDD_HHmmss")}`,
+      true,
+      "horizontal",
+      "Summary"
+    );
+  }}
+>
+  <SaveAltIcon fontSize="small"> </SaveAltIcon>
+  Excel
+</Button>
 ```
 
-4. You can create an excel sheet by placing multiple tables horizontally or vertically. Use the parameters layout
+4. You can create an excel sheet by placing multiple tables horizontally or vertically. Use the parameters `layout`
 
 ```javascript
 export default async function exportExcelJs(
