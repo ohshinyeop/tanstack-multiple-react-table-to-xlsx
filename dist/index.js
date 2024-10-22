@@ -13,12 +13,13 @@ exports.default = exportExcelJs;
 const exceljs_1 = require("exceljs");
 const file_saver_1 = require("file-saver");
 /**============
- * @description Export Excel
+ * @description Export Excel with Merged Cells
  * =============
  * */
 function exportExcelJs(tables_1, filename_1) {
-    return __awaiter(this, arguments, void 0, function* (tables, filename, applyFilters = true, layout = "vertical", // 가로/세로 배치 방식 선택
-    sheetName = "Sheet1") {
+    return __awaiter(this, arguments, void 0, function* (tables, // 여러 테이블을 받을 수 있도록 수정
+    filename, applyFilters = true, layout = "vertical", // 가로/세로 배치 방식 선택
+    sheetName = "Sheet 1") {
         const wb = new exceljs_1.Workbook();
         const ws = wb.addWorksheet(sheetName);
         let currentRow = 1;
@@ -44,17 +45,46 @@ function exportExcelJs(tables_1, filename_1) {
             const exportRows = applyFilters
                 ? table.getFilteredRowModel().rows
                 : table.getCoreRowModel().rows;
-            exportRows.forEach((row) => {
+            exportRows.forEach((row, rowIndex) => {
                 const cells = row.getVisibleCells().filter((cell) => {
                     return !cell.column.columnDef.enableHiding;
                 });
                 cells.forEach((cell, index) => {
                     var _a;
-                    ws.getRow(currentRow).getCell(currentCol + index).value =
-                        (_a = cell.getValue()) !== null && _a !== void 0 ? _a : "";
+                    const cellValue = (_a = cell.getValue()) !== null && _a !== void 0 ? _a : "";
+                    const cellRef = ws.getRow(currentRow).getCell(currentCol + index);
+                    cellRef.value = cellValue;
+                    // 가로 병합: 이전 행과 동일한 값일 경우 셀 병합
+                    const prevRowCell = ws
+                        .getRow(currentRow - 1)
+                        .getCell(currentCol + index);
+                    if (rowIndex > 0 &&
+                        prevRowCell.value === cellValue &&
+                        !prevRowCell.isMerged) {
+                        ws.mergeCells(currentRow - 1, currentCol + index, currentRow, currentCol + index);
+                    }
                 });
                 currentRow++;
             });
+            // 세로 병합: 동일한 열의 값이 모두 같을 경우 셀 병합
+            for (let colIndex = 0; colIndex < headers.length; colIndex++) {
+                let startRow = 2; // 데이터 시작 행 (헤더 다음)
+                let lastValue = ws.getRow(startRow).getCell(currentCol + colIndex).value;
+                for (let rowIndex = startRow + 1; rowIndex <= currentRow - 1; rowIndex++) {
+                    const currentValue = ws
+                        .getRow(rowIndex)
+                        .getCell(currentCol + colIndex).value;
+                    if (currentValue !== lastValue || rowIndex === currentRow - 1) {
+                        // 병합되지 않은 셀만 병합
+                        if (rowIndex - startRow > 1 &&
+                            !ws.getRow(startRow).getCell(currentCol + colIndex).isMerged) {
+                            ws.mergeCells(startRow, currentCol + colIndex, rowIndex - 1, currentCol + colIndex);
+                        }
+                        lastValue = currentValue;
+                        startRow = rowIndex;
+                    }
+                }
+            }
             // 테이블 간 간격 추가 (세로 배치일 경우)
             if (layout === "vertical") {
                 currentRow++; // 테이블 간에 한 줄 띄움
