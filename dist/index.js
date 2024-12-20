@@ -19,7 +19,7 @@ const file_saver_1 = require("file-saver");
 function exportExcelJs(tables_1, filename_1) {
     return __awaiter(this, arguments, void 0, function* (tables, // 여러 테이블을 받을 수 있도록 수정
     filename, applyFilters = true, layout = "vertical", // 가로/세로 배치 방식 선택
-    sheetName = "Sheet 1") {
+    sheetName = "Sheet 1", fileType) {
         const wb = new exceljs_1.Workbook();
         const ws = wb.addWorksheet(sheetName);
         let currentRow = 1;
@@ -101,6 +101,6 @@ function exportExcelJs(tables_1, filename_1) {
         }
         // 엑셀 파일 생성 및 다운로드
         const buf = yield wb.xlsx.writeBuffer();
-        (0, file_saver_1.saveAs)(new Blob([buf]), `${filename}.xlsx`);
+        (0, file_saver_1.saveAs)(new Blob([buf]), `${filename}.${fileType || "xlsx"}`);
     });
 }
