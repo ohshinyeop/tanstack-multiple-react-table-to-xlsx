@@ -37,8 +37,13 @@ function exportExcelJs(tables_1, filename_1) {
                 .map((header) => header.column.columnDef.header);
             // 헤더를 가로/세로 배치에 맞게 추가
             headers.forEach((header, index) => {
-                ws.getRow(currentRow).getCell(currentCol + index).value = header;
-                ws.getRow(currentRow).getCell(currentCol + index).font = { bold: true };
+                if (typeof header === "string") {
+                    ws.getRow(currentRow).getCell(currentCol + index).value = header;
+                    ws.getRow(currentRow).getCell(currentCol + index).font = { bold: true };
+                }
+                else {
+                    console.error("Header is not a string", header);
+                }
             });
             currentRow++; // 데이터가 시작될 행
             // 데이터 생성

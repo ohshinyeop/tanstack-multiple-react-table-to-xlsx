@@ -12,7 +12,8 @@ export default async function exportExcelJs(
   filename: string,
   applyFilters = true,
   layout: "horizontal" | "vertical" = "vertical", // 가로/세로 배치 방식 선택
-  sheetName: string = "Sheet 1"
+  sheetName: string = "Sheet 1",
+  fileType?: "xlsx" | "csv"
 ) {
   const wb = new Workbook();
   const ws = wb.addWorksheet(sheetName);
@@ -123,5 +124,5 @@ export default async function exportExcelJs(
 
   // 엑셀 파일 생성 및 다운로드
   const buf = await wb.xlsx.writeBuffer();
-  saveAs(new Blob([buf]), `${filename}.xlsx`);
+  saveAs(new Blob([buf]), `${filename}.${fileType || "xlsx"}`);
 }
